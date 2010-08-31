@@ -1,0 +1,9 @@
+This is a collection of source code for small applications for Haiku.
+
+Each application shows one specefic feature of the Haiku programming API. All of the source code is well documented, to help you know why a command does what.
+
+You may freely use the source code to learn how to program for Haiku better, or to simply get a quick start on writing a new application.
+
+David Couzelis
+drcouzelis@gmail.com
+2010

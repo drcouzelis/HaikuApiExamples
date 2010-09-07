@@ -1,0 +1,3 @@
+Create and show a window that has a menu bar.
+The menu items in the menu bar uses messages to change
+the applicatin.

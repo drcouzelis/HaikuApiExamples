@@ -1,7 +1,7 @@
 #include <Application.h>
 
 #include "App.h"
-#include "EmptyWindow.h"
+#include "MainWindow.h"
 
 
 App::App()
@@ -10,7 +10,10 @@ App::App()
 {
 	// The only thing that happens when you start this application is
 	// a window is created.
-	new EmptyWindow();
+	BWindow *mainwin = new MainWindow();
+	
+	// Now that it has been created, show it!
+	mainwin->Show();
 }
 
 

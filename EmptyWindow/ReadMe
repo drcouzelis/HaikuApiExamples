@@ -1,2 +1,9 @@
 Create and show an empty window.
 Press the "close" button to close the window. 
+
+Uses:
+BApplication
+BApplication::PostMessage
+BWindow
+BWindow::MoveTo
+BWindow::ResizeTo

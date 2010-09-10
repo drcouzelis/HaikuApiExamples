@@ -3,11 +3,11 @@
 
 // Represents the window on the screen.
 // You can't see it until you use the "Show" method.
-class EmptyWindow : public BWindow
+class MainWindow : public BWindow
 {
 public:
 
-	EmptyWindow();
+	MainWindow();
 
 	virtual bool QuitRequested(); // Override the BWindow method
 };

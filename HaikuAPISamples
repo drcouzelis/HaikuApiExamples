@@ -2,6 +2,8 @@ EmptyWindow
 MenuBar
 ButtonPress
 ListItems
+LoadResources
+
 WindowControls
 LoadImage
 ReadFile

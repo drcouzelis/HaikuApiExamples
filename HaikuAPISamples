@@ -3,6 +3,8 @@ MenuBar
 ButtonPress
 ListItems
 LoadResources
+ListDirectory
+HaikuFortune
 
 WindowControls
 LoadImage

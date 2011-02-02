@@ -47,6 +47,8 @@ private:
 	int32			fMaxSpeed; // The max speed of a leaf
 	BBitmap			*fBackBitmap; // Used to reduce flicker
 	BView			*fBackView;
+	
+	bool			fZUsed[101]; // Used to prevent a flicker bug
 };
 
 
@@ -65,7 +67,8 @@ FallLeaves::FallLeaves(BMessage *archive, image_id thisImage)
 	fBackBitmap(NULL),
 	fBackView(NULL)
 {
-	// Empty
+	for (int32 i = 0; i < 101; i++)
+		fZUsed[i] = false;
 }
 
 
@@ -82,7 +85,10 @@ int cmpz(const void *item1, const void *item2)
 	if (a->Z() < b->Z())
 		return 1;
 	
-	return -1;
+	if (a->Z() > b->Z())
+		return -1;
+	
+	return 0;
 }
 
 
@@ -173,7 +179,6 @@ void FallLeaves::Draw(BView *view, int32 frame)
 			break;
 		leaf->Update(TICKS_PER_SECOND);
 		leaf->Draw(fBackView);
-		fBackView->Sync(); // TEMP
 	}
 	
 	bool sort = false;
@@ -186,6 +191,7 @@ void FallLeaves::Draw(BView *view, int32 frame)
 			break;
 		if (leaf->IsDead()) {
 			// Remove the dead leaf
+			fZUsed[leaf->Z()] = false;
 			fLeaves->RemoveItem(leaf);
 			delete leaf;
 			// Add a new leaf to replace the dead one
@@ -210,6 +216,18 @@ FallLeaves::_CreateLeaf(BView *view, bool above)
 	// The Z axis (how far away the leaf is)
 	// determines the size and speed
 	int32 z = RAND_NUM(40, 100);
+	
+	// This is a hack. :'(
+	// There was a peculiar flicker when resorting
+	// and drawing the leaves. It happens when two
+	// leaves have the same Z value. Use this array
+	// to ensure unique Z values.
+	while (fZUsed[z]) {
+		z++;
+		if (z > 100)
+			z = 40;
+	}
+	fZUsed[z] = true;
 	
 	// The lower the Z axis number, the smaller the leaf
 	int32 size = (fMaxSize * z) / 100;

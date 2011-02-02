@@ -2,15 +2,14 @@
  * Copyright (c) 2011 David Couzelis. All Rights Reserved.
  * This file may be used under the terms of the MIT License.
  */
-
 #ifndef _LEAF_H_
 #define _LEAF_H_
 
-// libbe.so
+
 #include <Bitmap.h>
 #include <View.h>
 
-// Represents a falling leaf
+
 class Leaf
 {
 public:
@@ -49,5 +48,6 @@ private:
 	BRect			fBounds;
 	bool			fDead;
 };
+
 
 #endif

@@ -2,8 +2,8 @@
  * Copyright (c) 2011 David Couzelis. All Rights Reserved.
  * This file may be used under the terms of the MIT License.
  */
-
 #include "Leaf.h"
+
 
 Leaf::Leaf(BBitmap *bitmap)
 	:
@@ -18,13 +18,12 @@ Leaf::Leaf(BBitmap *bitmap)
 	// Empty
 }
 
+
 void
 Leaf::Update(int32 ticksPerSecond)
 {
 	if (fDead)
 		return;
-	
-	// TODO: Replace this with other more "leaf like" falling algorithms
 	
 	fFudge += fSpeed;
 	
@@ -41,6 +40,7 @@ Leaf::Update(int32 ticksPerSecond)
 		fDead = true; // ...then it's dead
 	}
 }
+
 
 void
 Leaf::Draw(BView *view)

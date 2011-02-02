@@ -7,7 +7,7 @@
  * Inspired by and partially copied from the "Icons" screensaver,
  * by Vincent Duvert.
  *
- * Leaf images by Stephan Asmus.
+ * Leaf images by Stephan Aßmus.
  */
 #include <Bitmap.h>
 #include "BuildScreenSaverDefaultSettingsView.h" // TEMP local

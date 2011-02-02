@@ -10,8 +10,8 @@
  * Leaf images by Stephan Asmus.
  */
 #include <Bitmap.h>
-#include <BuildScreenSaverDefaultSettingsView.h>
-#include <IconUtils.h>
+#include "BuildScreenSaverDefaultSettingsView.h" // TEMP local
+#include "IconUtils.h" // TEMP local
 #include <List.h>
 #include <ScreenSaver.h>
 #include <StringView.h>
@@ -88,7 +88,7 @@ int cmpz(const void *item1, const void *item2)
 
 void FallLeaves::StartConfig(BView *configView)
 {
-	BPrivate::BuildScreenSaverDefaultSettingsView(view, "Fall Leaves",
+	BPrivate::BuildScreenSaverDefaultSettingsView(configView, "Fall Leaves",
 			"by David Couzelis");
 }
 
@@ -173,7 +173,7 @@ void FallLeaves::Draw(BView *view, int32 frame)
 			break;
 		leaf->Update(TICKS_PER_SECOND);
 		leaf->Draw(fBackView);
-		//fBackView->Sync(); TEMP
+		fBackView->Sync(); // TEMP
 	}
 	
 	bool sort = false;
@@ -523,8 +523,6 @@ const unsigned char kLeaf5[] = {
 	0x0a, 0x02, 0x01, 0x02, 0x00, 0x0a, 0x07, 0x01, 0x06, 0x00, 0x0a, 0x03,
 	0x01, 0x01, 0x08, 0x15, 0xff
 };
-
-const int32 kNumLeafTypes = 6;
 
 // Leaf 6 - Red 2
 const unsigned char kLeaf6[] = {

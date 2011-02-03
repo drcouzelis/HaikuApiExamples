@@ -1,14 +1,12 @@
-/**
- * A lovely screensaver with falling Haiku leaves.
- *
- * Copyright (c) 2011 David Couzelis. All Rights Reserved.
- * This file may be used under the terms of the MIT License.
- *
- * Inspired by and partially copied from the "Icons" screensaver,
- * by Vincent Duvert.
- *
- * Leaf images by Stephan Aßmus.
- */
+// A lovely screensaver with falling Haiku leaves.
+//
+// Copyright (c) 2011 David Couzelis. All Rights Reserved.
+// This file may be used under the terms of the MIT License.
+//
+// Inspired by and partially copied from the "Icons" screensaver,
+// by Vincent Duvert.
+//
+// Leaf images by Stephan Aßmus.
 #include <Bitmap.h>
 #include "BuildScreenSaverDefaultSettingsView.h" // TEMP local
 #include "IconUtils.h" // TEMP local
@@ -33,32 +31,33 @@ const int32 kMaxLeaves = 35;
 class FallLeaves : public BScreenSaver
 {
 public:
-					FallLeaves(BMessage *archive, image_id thisImage);
-	void			StartConfig(BView *configView);
-	status_t		StartSaver(BView *view, bool preview);
+					FallLeaves(BMessage* archive, image_id thisImage);
+	void			StartConfig(BView* configView);
+	status_t		StartSaver(BView* view, bool preview);
 	void			StopSaver();
-	void			Draw(BView *view, int32 frame);
+	void			Draw(BView* view, int32 frame);
 private:
-	Leaf			*_CreateLeaf(BView *view, bool above);
-	BBitmap			*_RandomBitmap(int32 size);
+	Leaf*			_CreateLeaf(BView* view, bool above);
+	BBitmap*		_RandomBitmap(int32 size);
 	
-	BList			*fLeaves; // TODO: Convert to BObjectList
+	BList*			fLeaves; // TODO: Convert to BObjectList
 	int32			fMaxSize; // The max size of a leaf
 	int32			fMaxSpeed; // The max speed of a leaf
-	BBitmap			*fBackBitmap; // Used to reduce flicker
-	BView			*fBackView;
+	BBitmap*		fBackBitmap; // Used to reduce flicker
+	BView*			fBackView;
 	
 	bool			fZUsed[101]; // Used to prevent a flicker bug
 };
 
 
-extern "C" _EXPORT BScreenSaver *instantiate_screen_saver(BMessage *msg, image_id id)
+extern "C" _EXPORT BScreenSaver*
+instantiate_screen_saver(BMessage* msg, image_id id)
 {
 	return new FallLeaves(msg, id);
 }
 
 
-FallLeaves::FallLeaves(BMessage *archive, image_id thisImage)
+FallLeaves::FallLeaves(BMessage* archive, image_id thisImage)
 	:
 	BScreenSaver(archive, thisImage),
 	fLeaves(NULL),
@@ -72,15 +71,14 @@ FallLeaves::FallLeaves(BMessage *archive, image_id thisImage)
 }
 
 
-/**
- * A small helper function to sort leaves.
- * Sort the leaves in order of their Z axis,
- * from large to small.
- */
-int cmpz(const void *item1, const void *item2)
+// A small helper function to sort leaves.
+// Sort the leaves in order of their Z axis,
+// from large to small.
+int
+cmpz(const void* item1, const void* item2)
 {
-	const Leaf *a = *(const Leaf **)item1;
-	const Leaf *b = *(const Leaf **)item2;
+	const Leaf* a = *(const Leaf**)item1;
+	const Leaf* b = *(const Leaf**)item2;
 	
 	if (a->Z() < b->Z())
 		return 1;
@@ -92,14 +90,16 @@ int cmpz(const void *item1, const void *item2)
 }
 
 
-void FallLeaves::StartConfig(BView *configView)
+void
+FallLeaves::StartConfig(BView* configView)
 {
 	BPrivate::BuildScreenSaverDefaultSettingsView(configView, "Fall Leaves",
 			"by David Couzelis");
 }
 
 
-status_t FallLeaves::StartSaver(BView *view, bool preview)
+status_t
+FallLeaves::StartSaver(BView* view, bool preview)
 {
 	BRect screenRect(0, 0, view->Frame().Width(), view->Frame().Height());
 	fBackBitmap = new BBitmap(screenRect, B_RGBA32, true);
@@ -150,7 +150,7 @@ void
 FallLeaves::StopSaver()
 {
 	for (int32 i = 0; ; i++) {
-		Leaf *leaf = (Leaf *)fLeaves->ItemAt(i);
+		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
 		if (leaf == NULL)
 			break;
 		delete leaf;
@@ -165,7 +165,8 @@ FallLeaves::StopSaver()
 }
 
 
-void FallLeaves::Draw(BView *view, int32 frame)
+void
+FallLeaves::Draw(BView* view, int32 frame)
 {
 	fBackBitmap->Lock();
 	
@@ -174,7 +175,7 @@ void FallLeaves::Draw(BView *view, int32 frame)
 	
 	// Update and draw the leaves
 	for (int32 i = fLeaves->CountItems() - 1; ; i--) {
-		Leaf *leaf = (Leaf *)fLeaves->ItemAt(i);
+		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
 		if (leaf == NULL)
 			break;
 		leaf->Update(TICKS_PER_SECOND);
@@ -186,7 +187,7 @@ void FallLeaves::Draw(BView *view, int32 frame)
 	// Remove any dead leaves
 	// Do this in a separate loop to prevent flicker when drawing
 	for (int32 i = fLeaves->CountItems() - 1; ; i--) {
-		Leaf *leaf = (Leaf *)fLeaves->ItemAt(i);
+		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
 		if (leaf == NULL)
 			break;
 		if (leaf->IsDead()) {
@@ -211,13 +212,12 @@ void FallLeaves::Draw(BView *view, int32 frame)
 
 
 Leaf *
-FallLeaves::_CreateLeaf(BView *view, bool above)
+FallLeaves::_CreateLeaf(BView* view, bool above)
 {
 	// The Z axis (how far away the leaf is)
 	// determines the size and speed
 	int32 z = RAND_NUM(40, 100);
 	
-	// This is a hack. :'(
 	// There was a peculiar flicker when resorting
 	// and drawing the leaves. It happens when two
 	// leaves have the same Z value. Use this array
@@ -233,7 +233,7 @@ FallLeaves::_CreateLeaf(BView *view, bool above)
 	int32 size = (fMaxSize * z) / 100;
 	
 	// Create the leaf
-	Leaf *leaf = new Leaf(_RandomBitmap(size));
+	Leaf* leaf = new Leaf(_RandomBitmap(size));
 	
 	leaf->SetZ(z);
 	
@@ -605,11 +605,11 @@ const unsigned char kLeaf6[] = {
 const int32 kNumLeafTypes = 6;
 
 
-BBitmap *
+BBitmap*
 FallLeaves::_RandomBitmap(int32 size)
 {
 	// Load an image of a leaf
-	BBitmap *bitmap = new BBitmap(BRect(0, 0, size, size), B_RGBA32);
+	BBitmap* bitmap = new BBitmap(BRect(0, 0, size, size), B_RGBA32);
 	
 	// Select one randomly
 	switch (RAND_NUM(1, kNumLeafTypes)) {

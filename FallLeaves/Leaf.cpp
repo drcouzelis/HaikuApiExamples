@@ -1,11 +1,9 @@
-/**
- * Copyright (c) 2011 David Couzelis. All Rights Reserved.
- * This file may be used under the terms of the MIT License.
- */
+// Copyright (c) 2011 David Couzelis. All Rights Reserved.
+// This file may be used under the terms of the MIT License.
 #include "Leaf.h"
 
 
-Leaf::Leaf(BBitmap *bitmap)
+Leaf::Leaf(BBitmap* bitmap)
 	:
 	fBitmap(bitmap),
 	fPos(BPoint()),
@@ -35,15 +33,15 @@ Leaf::Update(int32 ticksPerSecond)
 	}
 	
 	// If the leaf is out of bounds...
-	if (fPos.x < fBounds.left || fPos.x > fBounds.right ||
-			fPos.y < fBounds.top || fPos.y > fBounds.bottom) {
+	if (fPos.x < fBounds.left || fPos.x > fBounds.right
+			|| fPos.y < fBounds.top || fPos.y > fBounds.bottom) {
 		fDead = true; // ...then it's dead
 	}
 }
 
 
 void
-Leaf::Draw(BView *view)
+Leaf::Draw(BView* view)
 {
 	if (fDead)
 		return;

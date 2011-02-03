@@ -1,7 +1,5 @@
-/**
- * Copyright (c) 2011 David Couzelis. All Rights Reserved.
- * This file may be used under the terms of the MIT License.
- */
+// Copyright (c) 2011 David Couzelis. All Rights Reserved.
+// This file may be used under the terms of the MIT License.
 #ifndef _LEAF_H_
 #define _LEAF_H_
 
@@ -13,11 +11,11 @@
 class Leaf
 {
 public:
-					Leaf(BBitmap *bitmap);
+					Leaf(BBitmap* bitmap);
 					~Leaf() { delete fBitmap; };
 	
 	void			Update(int32 ticksPerSecond);
-	void			Draw(BView *view);
+	void			Draw(BView* view);
 	
 	void			SetPos(BPoint pos) { fPos = pos; };
 	BPoint			Pos() { return fPos; };

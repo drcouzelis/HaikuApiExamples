@@ -1,0 +1,1 @@
+gcc -o AwesomeSaver *.cpp -lbe -lscreensaver -nostart -Xlinker -soname=AwesomeSaver

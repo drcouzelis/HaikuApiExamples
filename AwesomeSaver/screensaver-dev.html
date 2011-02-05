@@ -21,7 +21,6 @@ public:
 	void			Draw(BView* view, int32 frame);
 private:
 	// These variables are specific to AwesomeSaver
-	int32			fSize;
 	int32			fX;
 	int32			fY;
 	int32			fChangeX;
@@ -39,8 +38,7 @@ private:
 AwesomeSaver::AwesomeSaver(BMessage* archive, image_id thisImage)
 	:
 	BScreenSaver(archive, thisImage), // Call the constructor for BScreenSaver
-	fSize(20), // Initialize variable
-	fX(200),
+	fX(200), // Initialize variable
 	fY(100),
 	fChangeX(1),
 	fChangeY(1)
@@ -81,17 +79,9 @@ status_t
 AwesomeSaver::StartSaver(BView* view, bool preview)
 {
 	if (preview) {
-		fSize = 10;
 		fX = 20;
 		fY = 10;
 	}
-	
-	// Set the font
-	BFont font;
-	view->GetFont(&font);
-	font.SetSize(fSize);
-	font.SetFace(B_BOLD_FACE);
-	view->SetFont(&font);
 	
 	return B_OK;
 }

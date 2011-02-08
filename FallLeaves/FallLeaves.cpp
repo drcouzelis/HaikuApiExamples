@@ -13,7 +13,9 @@
 #include <List.h>
 #include <ScreenSaver.h>
 #include <Slider.h>
+#include <String.h>
 #include <StringView.h>
+#include <TextView.h>
 #include <stdlib.h>
 
 #include "Leaf.h"
@@ -92,9 +94,9 @@ FallLeaves::FallLeaves(BMessage* archive, image_id thisImage)
 		fZUsed[i] = false;
 	
 	if (archive) {
-		if (archive->FindInt32("Leaves speed", &fSpeedSetting) != B_OK)
+		if (archive->FindInt32("FallLeaves speed", &fSpeedSetting) != B_OK)
 			fSpeedSetting = kDefaultSpeed;
-		if (archive->FindInt32("Leaves amount", &fAmountSetting) != B_OK)
+		if (archive->FindInt32("FallLeaves amount", &fAmountSetting) != B_OK)
 			fAmountSetting = kDefaultAmount;
 	}
 }
@@ -122,66 +124,54 @@ cmpz(const void* item1, const void* item2)
 void
 FallLeaves::StartConfig(BView* configView)
 {
-	BPrivate::BuildScreenSaverDefaultSettingsView(configView, "Fall Leaves",
-			"by David Couzelis");
+	//BPrivate::BuildScreenSaverDefaultSettingsView(configView, "Fall Leaves",
+			//"by David Couzelis");
 	
-	/*
-	BRect bounds = view->Bounds();
+	BRect bounds = configView->Bounds();
 	bounds.InsetBy(10, 10);
 	BRect frame(0, 0, bounds.Width(), 20);
 
-	fDropRateSlider = new BSlider(frame, "drop rate",
-		B_TRANSLATE("Drop rate:"), new BMessage(MSG_SET_DROP_RATE),
-		kMinimumDropRate, kMaximumDropRate,	B_BLOCK_THUMB,
+	fSpeedSlider = new BSlider(frame, NULL,
+		"Speed:" /*B_TRANSLATE("Speed:")*/, new BMessage(MSG_SET_SPEED),
+		kMinSpeed, kMaxSpeed, B_BLOCK_THUMB,
 		B_FOLLOW_LEFT_RIGHT | B_FOLLOW_BOTTOM);
-	fDropRateSlider->SetValue(fDropRate);
-	fDropRateSlider->ResizeToPreferred();
-	bounds.bottom -= fDropRateSlider->Bounds().Height() * 1.5;
-	fDropRateSlider->MoveTo(bounds.LeftBottom());
-	view->AddChild(fDropRateSlider);
+	fSpeedSlider->SetValue(fSpeedSetting);
+	fSpeedSlider->ResizeToPreferred();
+	bounds.bottom -= fSpeedSlider->Bounds().Height() * 1.5;
+	fSpeedSlider->MoveTo(bounds.LeftBottom());
+	configView->AddChild(fSpeedSlider);
 
-	fLeafSizeSlider = new BSlider(frame, "leaf size",
-		B_TRANSLATE("Leaf size:"), new BMessage(MSG_SET_LEAF_SIZE),
-		kMinimumLeafSize, kMaximumLeafSize,	B_BLOCK_THUMB,
+	fAmountSlider = new BSlider(frame, NULL,
+		"Amount:" /*B_TRANSLATE("Amount:")*/, new BMessage(MSG_SET_AMOUNT),
+		kMinAmount, kMaxAmount, B_BLOCK_THUMB,
 		B_FOLLOW_LEFT_RIGHT | B_FOLLOW_BOTTOM);
-	fLeafSizeSlider->SetValue(fLeafSize);
-	fLeafSizeSlider->ResizeToPreferred();
-	bounds.bottom -= fLeafSizeSlider->Bounds().Height() * 1.5;
-	fLeafSizeSlider->MoveTo(bounds.LeftBottom());
-	view->AddChild(fLeafSizeSlider);
-
-	fSizeVariationSlider = new BSlider(frame, "variation",
-		B_TRANSLATE("Size variation:"),	new BMessage(MSG_SET_SIZE_VARIATION),
-		0, kMaximumSizeVariation, B_BLOCK_THUMB,
-		B_FOLLOW_LEFT_RIGHT | B_FOLLOW_BOTTOM);
-	fSizeVariationSlider->SetValue(fSizeVariation);
-	fSizeVariationSlider->ResizeToPreferred();
-	bounds.bottom -= fSizeVariationSlider->Bounds().Height() * 1.5;
-	fSizeVariationSlider->MoveTo(bounds.LeftBottom());
-	view->AddChild(fSizeVariationSlider);
+	fAmountSlider->SetValue(fAmountSetting);
+	fAmountSlider->ResizeToPreferred();
+	bounds.bottom -= fAmountSlider->Bounds().Height() * 1.5;
+	fAmountSlider->MoveTo(bounds.LeftBottom());
+	configView->AddChild(fAmountSlider);
 
 	BTextView* textView = new BTextView(bounds, B_EMPTY_STRING,
 		bounds.OffsetToCopy(0., 0.), B_FOLLOW_ALL, B_WILL_DRAW);
-	textView->SetViewColor(view->ViewColor());
-	BString name = B_TRANSLATE("Leaves");
+	textView->SetViewColor(configView->ViewColor());
+	BString name = "Fall Leaves"; /*B_TRANSLATE("Fall Leaves");*/
 	BString text = name;
 	text << "\n\n";
-	text << B_TRANSLATE("by Deyan Genovski, Geoffry Song");
+	text << "by David Couzelis"; /*B_TRANSLATE("by David Couzelis");*/
 	text << "\n\n";
 
 	textView->Insert(text.String());
 	textView->SetStylable(true);
 	textView->SetFontAndColor(0, name.Length(), be_bold_font);
 	textView->MakeEditable(false);
-	view->AddChild(textView);
+	configView->AddChild(textView);
 
-	BWindow* window = view->Window();
-	if (window) window->AddHandler(this);
+	BWindow* window = configView->Window();
+	if (window)
+		window->AddHandler(this);
 
-	fDropRateSlider->SetTarget(this);
-	fLeafSizeSlider->SetTarget(this);
-	fSizeVariationSlider->SetTarget(this);
-	*/
+	fSpeedSlider->SetTarget(this);
+	fAmountSlider->SetTarget(this);
 }
 
 
@@ -218,7 +208,7 @@ FallLeaves::StartSaver(BView* view, bool preview)
 	fSize = (int32)(view->Frame().bottom * 2) / 10;
 	
 	// Set the max speed
-	int32 maxSpeedFromScreenSize = (int32)(view->Frame().bottom); // * 5) / 10;
+	int32 maxSpeedFromScreenSize = (int32)(view->Frame().bottom);
 	fSpeed = (maxSpeedFromScreenSize * fSpeedSetting) / kMaxSpeed;
 	
 	// Set the amount of leaves on the screen at a time
@@ -260,9 +250,9 @@ status_t
 FallLeaves::SaveState(BMessage* into)
 {
 	status_t status;
-	if ((status = into->AddInt32("Leaves speed", fSpeedSetting)) != B_OK)
+	if ((status = into->AddInt32("FallLeaves speed", fSpeedSetting)) != B_OK)
 		return status;
-	if ((status = into->AddInt32("Leaves amount", fAmountSetting)) != B_OK)
+	if ((status = into->AddInt32("FallLeaves amount", fAmountSetting)) != B_OK)
 		return status;
 	return B_OK;
 }

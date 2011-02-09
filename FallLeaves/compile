@@ -1,1 +1,1 @@
-gcc -o FallLeaves *.cpp -lbe -lscreensaver -nostart -Xlinker -soname=FallLeaves
+gcc -o FallLeaves *.cpp -lbe -lscreensaver -llocale -llocalestub -nostart -Xlinker -soname=FallLeaves

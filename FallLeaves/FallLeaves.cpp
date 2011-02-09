@@ -9,6 +9,7 @@
 // Leaf images by Stephan Aßmus.
 #include <Bitmap.h>
 #include "BuildScreenSaverDefaultSettingsView.h" // TEMP local
+#include <Catalog.h>
 #include "IconUtils.h" // TEMP local
 #include <List.h>
 #include <ScreenSaver.h>
@@ -19,6 +20,11 @@
 #include <stdlib.h>
 
 #include "Leaf.h"
+
+
+// For transaltion
+#undef B_TRANSLATE_CONTEXT
+#define B_TRANSLATE_CONTEXT "FallLeaves"
 
 
 #define RAND_NUM(low, high) ((rand() % ((high) - (low) + 1) + (low)))
@@ -50,10 +56,12 @@ public:
 	void			StartConfig(BView* configView);
 	status_t		StartSaver(BView* view, bool preview);
 	void			StopSaver();
-	status_t		SaveState(BMessage* into);
+	status_t		SaveState(BMessage* into) const;
 	void			MessageReceived(BMessage* message);
 	void			Draw(BView* view, int32 frame);
 private:
+	void			_UpdateSpeed();
+	void			_UpdateAmount();
 	Leaf*			_CreateLeaf(BView* view, bool above);
 	BBitmap*		_RandomBitmap(int32 size);
 	
@@ -69,6 +77,7 @@ private:
 	int32			fSpeedSetting;
 	int32			fAmountSetting;
 	
+	BView*			fView;
 	BBitmap*		fBackBitmap; // Used to reduce flicker
 	BView*			fBackView;
 	
@@ -87,6 +96,7 @@ FallLeaves::FallLeaves(BMessage* archive, image_id thisImage)
 	fAmountSlider(NULL),
 	fSpeedSetting(kDefaultSpeed),
 	fAmountSetting(kDefaultAmount),
+	fView(NULL),
 	fBackBitmap(NULL),
 	fBackView(NULL)
 {
@@ -131,8 +141,8 @@ FallLeaves::StartConfig(BView* configView)
 	bounds.InsetBy(10, 10);
 	BRect frame(0, 0, bounds.Width(), 20);
 
-	fSpeedSlider = new BSlider(frame, NULL,
-		"Speed:" /*B_TRANSLATE("Speed:")*/, new BMessage(MSG_SET_SPEED),
+	fSpeedSlider = new BSlider(frame, "speed slider",
+		/*"Speed:"*/ B_TRANSLATE("Speed:"), new BMessage(MSG_SET_SPEED),
 		kMinSpeed, kMaxSpeed, B_BLOCK_THUMB,
 		B_FOLLOW_LEFT_RIGHT | B_FOLLOW_BOTTOM);
 	fSpeedSlider->SetValue(fSpeedSetting);
@@ -141,8 +151,8 @@ FallLeaves::StartConfig(BView* configView)
 	fSpeedSlider->MoveTo(bounds.LeftBottom());
 	configView->AddChild(fSpeedSlider);
 
-	fAmountSlider = new BSlider(frame, NULL,
-		"Amount:" /*B_TRANSLATE("Amount:")*/, new BMessage(MSG_SET_AMOUNT),
+	fAmountSlider = new BSlider(frame, "amount slider",
+		/*"Amount:"*/ B_TRANSLATE("Amount:"), new BMessage(MSG_SET_AMOUNT),
 		kMinAmount, kMaxAmount, B_BLOCK_THUMB,
 		B_FOLLOW_LEFT_RIGHT | B_FOLLOW_BOTTOM);
 	fAmountSlider->SetValue(fAmountSetting);
@@ -178,6 +188,8 @@ FallLeaves::StartConfig(BView* configView)
 status_t
 FallLeaves::StartSaver(BView* view, bool preview)
 {
+	fView = view;
+	
 	BRect screenRect(0, 0, view->Frame().Width(), view->Frame().Height());
 	fBackBitmap = new BBitmap(screenRect, B_RGBA32, true);
 	if (!fBackBitmap->IsValid())
@@ -208,11 +220,10 @@ FallLeaves::StartSaver(BView* view, bool preview)
 	fSize = (int32)(view->Frame().bottom * 2) / 10;
 	
 	// Set the max speed
-	int32 maxSpeedFromScreenSize = (int32)(view->Frame().bottom);
-	fSpeed = (maxSpeedFromScreenSize * fSpeedSetting) / kMaxSpeed;
+	_UpdateSpeed();
 	
 	// Set the amount of leaves on the screen at a time
-	fAmount = fAmountSetting;
+	_UpdateAmount();
 	
 	fLeaves = new BList();
 	
@@ -247,14 +258,23 @@ FallLeaves::StopSaver()
 
 
 status_t
-FallLeaves::SaveState(BMessage* into)
+FallLeaves::SaveState(BMessage* into) const
 {
+	if (into) {
+		into->AddInt32("FallLeaves speed", fSpeedSetting);
+		into->AddInt32("FallLeaves amount", fAmountSetting);
+		return B_OK;
+	}
+	return B_BAD_VALUE;
+	
+	/*
 	status_t status;
 	if ((status = into->AddInt32("FallLeaves speed", fSpeedSetting)) != B_OK)
 		return status;
 	if ((status = into->AddInt32("FallLeaves amount", fAmountSetting)) != B_OK)
 		return status;
 	return B_OK;
+	*/
 }
 
 
@@ -264,9 +284,11 @@ FallLeaves::MessageReceived(BMessage* message)
 	switch (message->what) {
 		case MSG_SET_SPEED:
 			fSpeedSetting = fSpeedSlider->Value();
+			_UpdateSpeed();
 			break;
 		case MSG_SET_AMOUNT:
 			fAmountSetting = fAmountSlider->Value();
+			_UpdateAmount();
 			break;
 		default:
 			BHandler::MessageReceived(message);
@@ -321,6 +343,21 @@ FallLeaves::Draw(BView* view, int32 frame)
 	fBackView->Sync();
 	fBackBitmap->Unlock();
 	view->DrawBitmap(fBackBitmap);
+}
+
+
+void
+FallLeaves::_UpdateSpeed()
+{
+	int32 maxSpeedFromScreenSize = (int32)(fView->Frame().bottom);
+	fSpeed = (maxSpeedFromScreenSize * fSpeedSetting) / kMaxSpeed;
+}
+
+
+void
+FallLeaves::_UpdateAmount()
+{
+	fAmount = fAmountSetting;
 }
 
 

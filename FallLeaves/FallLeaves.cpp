@@ -211,7 +211,7 @@ FallLeaves::SetSpeed(int32 speed)
 }
 
 
-Leaf *
+Leaf*
 FallLeaves::_CreateLeaf(BView* view, bool above)
 {
 	// The Z axis (how far away the leaf is)

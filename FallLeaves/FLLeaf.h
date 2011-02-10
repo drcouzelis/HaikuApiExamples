@@ -1,7 +1,7 @@
 // Copyright (c) 2011 David Couzelis. All Rights Reserved.
 // This file may be used under the terms of the MIT License.
-#ifndef _LEAF_H_
-#define _LEAF_H_
+#ifndef _FLLEAF_H_
+#define _FLLEAF_H_
 
 
 #include <Bitmap.h>

@@ -1,6 +1,6 @@
 // Copyright (c) 2011 David Couzelis. All Rights Reserved.
 // This file may be used under the terms of the MIT License.
-#include "Leaf.h"
+#include "FLLeaf.h"
 
 
 Leaf::Leaf(BBitmap* bitmap)

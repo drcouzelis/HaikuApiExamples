@@ -8,7 +8,7 @@
 //   The "Leaves" screensaver, by Deyan Genovski, Geoffry Song.
 //
 // Leaf images by Stephan Aßmus.
-#include "IconUtils.h" // TEMP local
+#include "IconUtils.h" // TEMP local, soon to be made a public Haiku API
 #include <stdlib.h>
 
 #include "FallLeaves.h"

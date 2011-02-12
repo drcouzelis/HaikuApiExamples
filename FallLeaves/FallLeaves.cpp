@@ -57,7 +57,7 @@ FallLeaves::FallLeaves(BMessage* archive, image_id thisImage)
 FallLeaves::~FallLeaves()
 {
 	for (int32 i = 0; ; i++) {
-		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
+		Leaf* leaf = fLeaves->ItemAt(i);
 		if (leaf == NULL)
 			break;
 		delete leaf;
@@ -87,15 +87,12 @@ FallLeaves::StartConfig(BView* configView)
 	from large to small.
 */
 int
-cmpz(const void* item1, const void* item2)
+cmpz(const Leaf* leaf1, const Leaf* leaf2)
 {
-	const Leaf* a = *(const Leaf**)item1;
-	const Leaf* b = *(const Leaf**)item2;
-	
-	if (a->Z() < b->Z())
+	if (leaf1->Z() < leaf2->Z())
 		return 1;
 	
-	if (a->Z() > b->Z())
+	if (leaf1->Z() > leaf2->Z())
 		return -1;
 	
 	return 0;
@@ -130,7 +127,7 @@ FallLeaves::StartSaver(BView* view, bool preview)
 	// height of the screen
 	fSize = (view->Bounds().IntegerHeight() * 2) / 10;
 	
-	fLeaves = new BList();
+	fLeaves = new BObjectList<Leaf>();
 	
 	// Create some leaves
 	for (int32 i = 0; i < fAmount; i++)
@@ -166,7 +163,7 @@ FallLeaves::Draw(BView* view, int32 frame)
 		
 		// Update and draw the leaves
 		for (int32 i = fLeaves->CountItems() - 1; ; i--) {
-			Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
+			Leaf* leaf = fLeaves->ItemAt(i);
 			if (leaf == NULL)
 				break;
 			leaf->Update(TICKS_PER_SECOND);

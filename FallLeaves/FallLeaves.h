@@ -6,6 +6,7 @@
 #define _FALLLEAVES_H_
 
 
+#include <ObjectList.h>
 #include <ScreenSaver.h>
 
 
@@ -41,7 +42,7 @@ private:
 	Leaf*			_CreateLeaf(BView* view, bool above);
 	BBitmap*		_RandomBitmap(int32 size);
 	
-	BList*			fLeaves;
+	BObjectList<Leaf>*		fLeaves;
 	
 	int32			fSize;
 						// The size of the biggest possible leaf

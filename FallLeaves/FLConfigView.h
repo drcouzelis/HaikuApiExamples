@@ -1,5 +1,7 @@
-// Copyright (c) 2011 David Couzelis. All Rights Reserved.
-// This file may be used under the terms of the MIT License.
+/*
+ * Copyright 2011 David Couzelis. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ */
 #ifndef _FLCONFIGVIEW_H_
 #define _FLCONFIGVIEW_H_
 

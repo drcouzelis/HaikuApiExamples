@@ -1,5 +1,7 @@
-// Copyright (c) 2011 David Couzelis. All Rights Reserved.
-// This file may be used under the terms of the MIT License.
+/*
+ * Copyright 2011 David Couzelis. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ */
 #ifndef _FALLLEAVES_H_
 #define _FALLLEAVES_H_
 
@@ -25,10 +27,12 @@ class FallLeaves : public BScreenSaver
 {
 public:
 					FallLeaves(BMessage* archive, image_id thisImage);
+					~FallLeaves();
+	
 	void			StartConfig(BView* configView);
 	status_t		StartSaver(BView* view, bool preview);
-	void			StopSaver();
 	status_t		SaveState(BMessage* into) const;
+	
 	void			Draw(BView* view, int32 frame);
 	
 	void			SetAmount(int32 amount);
@@ -39,15 +43,21 @@ private:
 	
 	BList*			fLeaves;
 	
-	int32			fSize; // The size of the biggest possible leaf
+	int32			fSize;
+						// The size of the biggest possible leaf
 	
-	int32			fAmount; // The amount of leaves on the screen
-	int32			fSpeed; // The speed of the fastest leaf
+	int32			fAmount;
+						// The amount of leaves on the screen
+	int32			fSpeed;
+						// The speed of the fastest leaf
 	
-	BBitmap*		fBackBitmap; // Used to reduce flicker
+	BBitmap*		fBackBitmap;
 	BView*			fBackView;
+						// For double buffering,
+						// used to reduce flicker
 	
-	bool			fZUsed[101]; // Used to prevent a flicker bug
+	bool			fZUsed[101];
+						// Used to give each leaf a unique Z depth
 };
 
 

@@ -1,15 +1,21 @@
-// A lovely screensaver with falling Haiku leaves.
-//
-// Copyright (c) 2011 David Couzelis. All Rights Reserved.
-// This file may be used under the terms of the MIT License.
-//
-// Inspired by and partially copied from:
-//   The "Icons" screensaver, by Vincent Duvert.
-//   The "Leaves" screensaver, by Deyan Genovski, Geoffry Song.
-//
-// Leaf images by Stephan Aßmus.
-#include "IconUtils.h" // TEMP local, soon to be made a public Haiku API
+/*
+ * Copyright 2011 David Couzelis. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ *
+ * Authors:
+ *				David Couzelis, drcouzelis@gmail.com
+ *
+ * Inspired by and partially copied from:
+ *		The "Icons" screensaver, by Vincent Duvert.
+ *		The "Leaves" screensaver, by Deyan Genovski, Geoffry Song.
+ *
+ *Leaf images by Stephan Aßmus.
+ */
+
+
 #include <stdlib.h>
+
+#include "IconUtils.h" // TEMP local, soon to be made a public Haiku API
 
 #include "FallLeaves.h"
 #include "FLConfigView.h"
@@ -40,12 +46,29 @@ FallLeaves::FallLeaves(BMessage* archive, image_id thisImage)
 		fZUsed[i] = false;
 	
 	if (archive) {
-		int32 value;
-		if (archive->FindInt32(kArchiveAmountStr, &value) == B_OK)
-			fAmount = value;
-		if (archive->FindInt32(kArchiveSpeedStr, &value) == B_OK)
-			fSpeed = value;
+		if (archive->FindInt32(kArchiveAmountStr, &fAmount) != B_OK)
+			fAmount = kDefaultAmount;
+		if (archive->FindInt32(kArchiveSpeedStr, &fSpeed) != B_OK)
+			fSpeed = kDefaultSpeed;
 	}
+}
+
+
+FallLeaves::~FallLeaves()
+{
+	for (int32 i = 0; ; i++) {
+		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
+		if (leaf == NULL)
+			break;
+		delete leaf;
+	}
+	
+	delete fLeaves;
+	
+	fBackBitmap->RemoveChild(fBackView);
+	
+	delete fBackView;
+	delete fBackBitmap;
 }
 
 
@@ -59,9 +82,10 @@ FallLeaves::StartConfig(BView* configView)
 }
 
 
-// A small helper function to sort leaves.
-// Sort the leaves in order of their Z axis,
-// from large to small.
+/*	A small helper function to sort leaves.
+	Sort the leaves in order of their Z axis,
+	from large to small.
+*/
 int
 cmpz(const void* item1, const void* item2)
 {
@@ -81,17 +105,19 @@ cmpz(const void* item1, const void* item2)
 status_t
 FallLeaves::StartSaver(BView* view, bool preview)
 {
-	BRect screenRect(0, 0, view->Frame().Width(), view->Frame().Height());
+	BRect screenRect = view->Bounds();
 	
+	// Initialize the screen buffer
 	fBackBitmap = new BBitmap(screenRect, B_RGBA32, true);
 	fBackView = new BView(screenRect, NULL, 0, 0);
 
 	fBackBitmap->AddChild(fBackView);
 	
-	fBackBitmap->Lock();
-	fBackView->FillRect(fBackView->Frame());
-	fBackView->SetDrawingMode(B_OP_OVER); // Leaf transparency
-	fBackBitmap->Unlock();
+	if (fBackBitmap->Lock()) {
+		fBackView->FillRect(fBackView->Bounds());
+		fBackView->SetDrawingMode(B_OP_OVER); // Leaf transparency
+		fBackBitmap->Unlock();
+	}
 
 	// Set the rate the screensaver to be updated 100 times per second
 	// The argument here is in microseconds
@@ -102,7 +128,7 @@ FallLeaves::StartSaver(BView* view, bool preview)
 	
 	// The max size of a leaf will be about 20% the
 	// height of the screen
-	fSize = (int32)(view->Frame().bottom * 2) / 10;
+	fSize = (view->Bounds().IntegerHeight() * 2) / 10;
 	
 	fLeaves = new BList();
 	
@@ -117,25 +143,6 @@ FallLeaves::StartSaver(BView* view, bool preview)
 }
 
 
-void
-FallLeaves::StopSaver()
-{
-	for (int32 i = 0; ; i++) {
-		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
-		if (leaf == NULL)
-			break;
-		delete leaf;
-	}
-	
-	delete fLeaves;
-	
-	fBackBitmap->RemoveChild(fBackView);
-	
-	delete fBackView;
-	delete fBackBitmap;
-}
-
-
 status_t
 FallLeaves::SaveState(BMessage* into) const
 {
@@ -144,6 +151,7 @@ FallLeaves::SaveState(BMessage* into) const
 		into->AddInt32(kArchiveSpeedStr, fSpeed);
 		return B_OK;
 	}
+	
 	return B_BAD_VALUE;
 }
 
@@ -151,32 +159,28 @@ FallLeaves::SaveState(BMessage* into) const
 void
 FallLeaves::Draw(BView* view, int32 frame)
 {
-	fBackBitmap->Lock();
-	
-	// Clear the offscreen buffer
-	fBackView->FillRect(fBackView->Frame());
-	
-	// Update and draw the leaves
-	for (int32 i = fLeaves->CountItems() - 1; ; i--) {
-		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
-		if (leaf == NULL)
-			break;
-		leaf->Update(TICKS_PER_SECOND);
-		leaf->Draw(fBackView);
-	}
-	
-	// Remove any dead leaves
-	// Do this in a separate loop to prevent flicker when drawing
-	for (int32 i = fLeaves->CountItems() - 1; ; i--) {
-		Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
-		if (leaf == NULL)
-			break;
-		if (leaf->IsDead()) {
-			// Remove the dead leaf
-			fZUsed[leaf->Z()] = false;
-			fLeaves->RemoveItem(leaf);
-			delete leaf;
+	if (fBackBitmap->Lock()) {
+		
+		// Clear the offscreen buffer
+		fBackView->FillRect(fBackView->Bounds());
+		
+		// Update and draw the leaves
+		for (int32 i = fLeaves->CountItems() - 1; ; i--) {
+			Leaf* leaf = (Leaf*)fLeaves->ItemAt(i);
+			if (leaf == NULL)
+				break;
+			leaf->Update(TICKS_PER_SECOND);
+			leaf->Draw(fBackView);
+			
+			// If the leaf is dead, remove it
+			if (leaf->IsDead()) {
+				fZUsed[leaf->Z()] = false;
+				fLeaves->RemoveItem(leaf);
+				delete leaf;
+			}
 		}
+		
+		fBackBitmap->Unlock();
 	}
 	
 	bool sort = false;
@@ -192,7 +196,6 @@ FallLeaves::Draw(BView* view, int32 frame)
 	if (sort)
 		fLeaves->SortItems(cmpz);
 	
-	fBackBitmap->Unlock();
 	view->DrawBitmap(fBackBitmap);
 }
 
@@ -211,6 +214,12 @@ FallLeaves::SetSpeed(int32 speed)
 }
 
 
+/*
+	Create a leaf.
+	If the "above" parameter is true, it will create the leaf in
+	a random location above the screen. If it's false, the leaf
+	will be created just above the screen, ready to come it.
+*/
 Leaf*
 FallLeaves::_CreateLeaf(BView* view, bool above)
 {
@@ -218,10 +227,7 @@ FallLeaves::_CreateLeaf(BView* view, bool above)
 	// determines the size and speed
 	int32 z = RAND_NUM(40, 100);
 	
-	// There was a peculiar flicker when resorting
-	// and drawing the leaves. It happens when two
-	// leaves have the same Z value. Use this array
-	// to ensure unique Z values.
+	// Use this array to ensure unique Z values.
 	while (fZUsed[z]) {
 		z++;
 		if (z > 100)
@@ -238,22 +244,22 @@ FallLeaves::_CreateLeaf(BView* view, bool above)
 	leaf->SetZ(z);
 	
 	// The lower the Z axis number, the slower the leaf
-	int32 maxSpeedFromScreenSize = (int32)(view->Frame().bottom);
+	int32 maxSpeedFromScreenSize = view->Bounds().IntegerHeight();
 	int32 maxSpeed = (maxSpeedFromScreenSize * fSpeed) / kMaxSpeed;
 	int32 speed = (maxSpeed * z) / 100;
 	leaf->SetSpeed(speed);
 	
-	BRect bounds(-(size / 2), -view->Frame().Height(),
-			view->Frame().Width() - (size / 2), view->Frame().Height());
-	leaf->SetBounds(bounds);
+	BRect boundary(-(size / 2), -view->Bounds().Height(),
+			view->Bounds().Width() - (size / 2), view->Bounds().Height());
+	leaf->SetBoundary(boundary);
 	
 	// Set it to a random position
 	BPoint pos;
-	pos.x = RAND_NUM((int32)bounds.left, (int32)bounds.right);
+	pos.x = RAND_NUM((int32)boundary.left, boundary.IntegerWidth());
 	pos.y = -size;
 	
 	if (above)
-		pos.y = -(RAND_NUM(size, (int32)bounds.bottom));
+		pos.y = -(RAND_NUM(size, boundary.IntegerHeight()));
 	
 	leaf->SetPos(pos);
 	
@@ -610,10 +616,9 @@ const int32 kNumLeafTypes = 6;
 BBitmap*
 FallLeaves::_RandomBitmap(int32 size)
 {
-	// Load an image of a leaf
 	BBitmap* bitmap = new BBitmap(BRect(0, 0, size, size), B_RGBA32);
 	
-	// Select one randomly
+	// Randomly select one of the leaf images
 	switch (RAND_NUM(1, kNumLeafTypes)) {
 		
 		case 1:

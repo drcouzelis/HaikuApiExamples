@@ -1,5 +1,9 @@
-// Copyright (c) 2011 David Couzelis. All Rights Reserved.
-// This file may be used under the terms of the MIT License.
+/*
+ * Copyright 2011 David Couzelis. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ */
+
+
 #include "FLLeaf.h"
 
 
@@ -10,7 +14,7 @@ Leaf::Leaf(BBitmap* bitmap)
 	fZ(0),
 	fSpeed(0),
 	fFudge(0),
-	fBounds(BRect()),
+	fBoundary(BRect()),
 	fDead(false)
 {
 	// Empty
@@ -26,15 +30,13 @@ Leaf::Update(int32 ticksPerSecond)
 	fFudge += fSpeed;
 	
 	while (fFudge >= ticksPerSecond) {
-		
 		fPos.y++;
-		
 		fFudge -= ticksPerSecond;
 	}
 	
-	// If the leaf is out of bounds...
-	if (fPos.x < fBounds.left || fPos.x > fBounds.right
-			|| fPos.y < fBounds.top || fPos.y > fBounds.bottom) {
+	// If the leaf is out of boundary...
+	if (fPos.x < fBoundary.left || fPos.x > fBoundary.right
+			|| fPos.y < fBoundary.top || fPos.y > fBoundary.bottom) {
 		fDead = true; // ...then it's dead
 	}
 }

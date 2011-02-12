@@ -1,5 +1,9 @@
-// Copyright (c) 2011 David Couzelis. All Rights Reserved.
-// This file may be used under the terms of the MIT License.
+/*
+ * Copyright 2011 David Couzelis. All rights reserved.
+ * Distributed under the terms of the MIT License.
+ */
+
+
 #include <Catalog.h>
 #include <StringView.h>
 
@@ -7,7 +11,7 @@
 #include "FLConfigView.h"
 
 
-// For transaltion
+// For language translations
 #undef B_TRANSLATE_CONTEXT
 #define B_TRANSLATE_CONTEXT "FallLeaves"
 
@@ -30,14 +34,16 @@ FLConfigView::FLConfigView(BRect frame, FallLeaves* saver,
 	
 	// Screensaver name
 	BRect rect(10, 10, 20, 20);
-	BStringView* stringView = new BStringView(rect, B_EMPTY_STRING, B_TRANSLATE("Fall Leaves"));
+	BStringView* stringView = new BStringView(rect, B_EMPTY_STRING,
+		B_TRANSLATE("Fall Leaves"));
 	stringView->SetFont(be_bold_font);
 	stringView->ResizeToPreferred();
 	AddChild(stringView);
 
 	// Developer name
 	rect.OffsetBy(0, stringView->Bounds().Height() + 4);
-	stringView = new BStringView(rect, B_EMPTY_STRING, B_TRANSLATE("by David Couzelis"));
+	stringView = new BStringView(rect, B_EMPTY_STRING,
+		B_TRANSLATE("by David Couzelis"));
 	stringView->ResizeToPreferred();
 	AddChild(stringView);
 	

@@ -1,5 +1,5 @@
 echo "Compiling FallLeaves..."
-gcc -o FallLeaves *.cpp -lbe -lscreensaver -llocale -llocalestub -nostart -Xlinker -soname=FallLeaves
+gcc -o FallLeaves *.cpp -lbe -lscreensaver -llocalestub -nostart -Xlinker -soname=FallLeaves
 
 echo "Creating package..."
 mkdir -p "PackageRoot/add-ons/Screen Savers"
